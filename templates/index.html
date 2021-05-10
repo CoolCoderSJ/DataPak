@@ -1,0 +1,133 @@
+<!doctype html>
+<html>
+	<head>
+		<title>DataPak</title>
+		<link href="https://Minimalist.coolcodersj.repl.co/style.css" rel="stylesheet" type="text/css" />
+	</head>
+	<body class="body">
+		<center style="display: block;">
+			<div style=""><div>
+			<img src="static/icon.png" height="70px" style="margin-right: 15px; "></div><div>
+			<h2 style="">DataPak</h2></div>
+			<p style="">Click on a service to get started</p>
+			</div>	
+		</center>
+		<center>
+			<style>
+				button {
+					width: 200px;
+				}
+				center {
+					/* display: grid;
+					grid-template-columns: repeat(1, 1fr);
+					grid-gap: 1fr;
+					grid-template-columns: repeat(1, 1fr); */
+				}
+				.div {
+					margin-right: 10px;
+				}
+				.body {
+					margin-top: 0px;
+				}
+				@media (max-width: 768px) {
+					center {
+						margi-left: 0px !important;
+					}
+					.div2 {
+						margin-bottom: 50px;
+					}
+					.body {
+						margin-top: 0px;
+					}
+				}
+			</style>
+			<br><br><br>
+			<div class="div div2">
+		{% if not replitusername %}
+		<button id="replit">
+			<img src="https://coolcodersj.is-a.dev/replit-logo.svg" height="40px;" style="float:left; margin-right: 5px; padding-top: 0px !important;">
+			<div style="padding-top: 12px;">
+			Login With Replit
+			</div>
+			<script authed="location.reload()">
+				;(function() {
+  var selem = document.currentScript;
+
+  var button = document.getElementById("replit")
+
+  if (location.protocol !== 'https:') {
+    var err = document.createElement('div');
+    err.className = "replit-auth-error";
+    err.textContent = 'Replit auth requires https!';
+    selem.parentNode.insertBefore(err, selem);
+  }
+
+  button.onclick = function() {
+    // var authWindow = window.open('https://repl.it/auth_with_repl_site?domain=' + location.host)
+    window.addEventListener('message', authComplete);
+
+    var h = 500;
+		var w = 350;
+		var left = (screen.width / 2) - ( w / 2);
+		var top = (screen.height / 2) - (h / 2);
+
+    var authWindow = window.open(
+      'https://repl.it/auth_with_repl_site?domain='+location.host,
+      '_blank',
+      'modal =yes, toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width='+w+', height='+h+', top='+top+', left='+left)
+
+    function authComplete(e) {
+      if (e.data !== 'auth_complete') {
+        return;
+      }
+
+      window.removeEventListener('message', authComplete);
+
+      authWindow.close();
+      if (selem.attributes.authed.value) {
+        eval(selem.attributes.authed.value);
+      } else {
+        location.reload();
+      }
+    }
+  }
+
+  selem.parentNode.insertBefore(button, selem);
+})();
+			</script>
+		</button>
+		{% else %}
+		<a href="/replit/info" target="_blank">
+		<button id="replit">
+		<img src="https://coolcodersj.is-a.dev/replit-logo.svg" height="40px;" style="float:left; margin-right: 5px;">
+		<div style="padding-top: 12px;">{{ replitusername }}</div>
+		</button>
+		</a>
+		{% endif %}
+		</div><br>
+
+		<div class="div">
+			{% if discordusername == "" %}
+			<a href="/discord" target="_blank">
+			<button style="background: #7289da !important;"><img src="https://sjcdn.is-a.dev/file/hcnvnd" height="40px;" style="float:left; margin-right: 5px;"><div style="padding-top: 12px;">Login with Discord</div></button>
+			</a>
+			{% else %}
+			<a href="/discord/info" target="_blank">
+			<button style="background: #7289da !important;"><img src="https://sjcdn.is-a.dev/file/hcnvnd" height="40px;" style="float:left; margin-right: 5px;"><div style="padding-top: 12px;">{{  discordusername }}</div></button>
+			</a>
+			{% endif %}
+		</div><br>
+			<div class="div">
+			{% if gh == "" %}
+			<a href="/github" target="_blank">
+			<button style="background: rgb(17, 29, 44) !important;"><img src="https://sjcdn.is-a.dev/file/caikky" height="40px;" style="float:left; margin-right: 5px; scale: 85%;"><div style="padding-top: 12px;">Login with Github</div></button>
+			</a>
+			{% else %}
+			<a href="/github/info" target="_blank">
+			<button style="background: rgb(17, 29, 44) !important;"><img src="https://sjcdn.is-a.dev/file/caikky" height="40px;" style="float:left; margin-right: 5px; scale: 85%;"><div style="padding-top: 12px;">{{  gh }}</div></button>
+			</a>
+			{% endif %}
+		</div>
+		</center>
+	</body>
+</html>

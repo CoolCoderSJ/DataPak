@@ -1,0 +1,199 @@
+<!doctype html>
+<html>
+	<head>
+		<title>DataPak -- Github</title>
+		<link href="https://Minimalist.coolcodersj.repl.co/style.css" rel="stylesheet" type="text/css" />
+	</head>
+	<body style="margin-top: 50px; margin-left: 50px;">
+		<h3 style="float: left; margin-right: 20px;">Whats Included In Your Data Package</h3>
+		<a href="/github" style="float: left; margin-right: 10px;">
+		<button style="padding: 10px;">
+			Generate Archive (Zip)
+		</button>
+		</a>
+		<br><br><br><br><br>
+		<ul>
+			<li>account.json
+				<ul>
+					<li>login (username)</li>
+					<li>id</li>
+					<li>node_id</li>
+					<li>avatar_url</li>
+					<li>gravatar_id</li>
+					<li>url</li>
+					<li>html_url</li>
+					<li>followers_url</li>
+					<li>following_url</li>
+					<li>gists_url</li>
+					<li>starred_url</li>
+					<li>subscriptions_url</li>
+					<li>organizations_url</li>
+					<li>repos_url</li>
+					<li>events_url</li>
+					<li>received_events_url</li>
+					<li>type</li>
+					<li>site_admin</li>
+					<li>name</li>
+					<li>company</li>
+					<li>blog</li>
+					<li>location</li>
+					<li>email</li>
+					<li>hireable</li>
+					<li>bio</li>
+					<li>twitter_username</li>
+					<li>public_repos</li>
+					<li>public_gists</li>
+					<li>followers</li>
+					<li>following</li>
+					<li>created_at</li>
+					<li>updated_at</li>
+					<li>private_gists</li>
+					<li>total_private_repos</li>
+					<li>owned_private_repos</li>
+					<li>disk_usage</li>
+					<li>collaborators</li>
+					<li>two_factor_authentication</li>
+					<li>plan (plan type, i.e. pro, free, etc.)</li>
+				</ul>
+			</li>
+			<li>following.json (A list. Each list is a dict comprising of the following-)
+				<ul>
+					<li>login (username)</li>
+					<li>id</li>
+					<li>node_id</li>
+					<li>avatar_url</li>
+					<li>gravatar_id</li>
+					<li>url</li>
+					<li>html_url</li>
+					<li>followers_url</li>
+					<li>following_url</li>
+					<li>gists_url</li>
+					<li>starred_url</li>
+					<li>subscriptions_url</li>
+					<li>organizations_url</li>
+					<li>repos_url</li>
+					<li>events_url</li>
+					<li>received_events_url</li>
+					<li>type</li>
+					<li>site_admin</li>
+				</ul>
+			</li>
+			<li>followers.json (A list. Each list is a dict comprising of the following-)
+				<ul>
+					<li>login (username)</li>
+					<li>id</li>
+					<li>node_id</li>
+					<li>avatar_url</li>
+					<li>gravatar_id</li>
+					<li>url</li>
+					<li>html_url</li>
+					<li>followers_url</li>
+					<li>following_url</li>
+					<li>gists_url</li>
+					<li>starred_url</li>
+					<li>subscriptions_url</li>
+					<li>organizations_url</li>
+					<li>repos_url</li>
+					<li>events_url</li>
+					<li>received_events_url</li>
+					<li>type</li>
+					<li>site_admin</li>
+				</ul>
+			</li>
+			<li>orgs.json (A list. Each list is a dict comprising of the following-)
+				<ul>
+					<li>login (username)</li>
+					<li>id</li>
+					<li>avatar_url</li>
+					<li>description</li>
+					<li>node_id</li>
+					<li>url</li>
+					<li>repos_url</li>
+					<li>events_url</li>
+					<li>hooks_url</li>
+					<li>issues_url</li>
+					<li>members_url</li>
+					<li>public_members_url</li>
+				</ul>
+			</li>
+			<li>repos.json (A list. Each list is a dict comprising of the following-)
+				<ul>
+					<li>id</li>
+					<li>node_id</li>
+					<li>name</li>
+					<li>full_name</li>
+					<li>private</li>
+					<li>owner (this data is the same as account.json)</li>
+					<li>html_url</li>
+					<li>description</li>
+					<li>fork</li>
+					<li>forks_url</li>
+					<li>keys_url</li>
+					<li>collaborators_url</li>
+					<li>teams_url</li>
+					<li>hooks_url</li>
+					<li>issue_events_url</li>
+					<li>events_url</li>
+					<li>assignees_url</li>
+					<li>branches_url</li>
+					<li>tags_url</li>
+					<li>blobs_url</li>
+					<li>git_tags_url</li>
+					<li>git_refs_url</li>
+					<li>trees_url</li>
+					<li>statuses_url</li>
+					<li>languages_url</li>
+					<li>stargazers_url</li>
+					<li>contributors_url</li>
+					<li>subscribers_url</li>
+					<li>subscription_url</li>
+					<li>commits_url</li>
+					<li>git_commits_url</li>
+					<li>comments_url</li>
+					<li>issue_comment_url</li>
+					<li>contents_url</li>
+					<li>compare_url</li>
+					<li>merges_url</li>
+					<li>downloads_url</li>
+					<li>issues_url</li>
+					<li>pulls_url</li>
+					<li>milestones_url</li>
+					<li>notifications_url</li>
+					<li>labels_url</li>
+					<li>releases_url</li>
+					<li>deployments_url</li>
+					<li>created_at</li>
+					<li>updated_at</li>
+					<li>pushed_at</li>
+					<li>git_url</li>
+					<li>ssh_url</li>
+					<li>clone_url</li>
+					<li>svn_url</li>
+					<li>homepage</li>
+					<li>size</li>
+					<li>stargazers_count</li>
+					<li>watchers_count</li>
+					<li>language</li>
+					<li>has_issues</li>
+					<li>has_projects</li>
+					<li>has_downloads</li>
+					<li>has_wiki</li>
+					<li>has_pages</li>
+					<li>forks_count</li>
+					<li>mirror_url</li>
+					<li>archived</li>
+					<li>disabled</li>
+					<li>open_issues_count</li>
+					<li>license</li>
+					<li>forks</li>
+					<li>open_issues</li>
+					<li>watchers</li>
+					<li>default_branch</li>
+				</ul>
+			</li>
+			<li>Watchlist.json (watchlist.json is a list of repos that you are currently watching. The list comprises of dicts, and each dict has the data listed above (for repos.json))</li>
+			<li>starred.json (starred.json is a list of repos that you have currently starred. The list comprises of dicts, and each dict has the data listed above (for repos.json))</li>
+			<li>A zip version of all of your public repos</li>
+		</ul>
+	</body>
+</html>
