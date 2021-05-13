@@ -19,33 +19,9 @@ import random, string, asyncio
 import os
 import shutil
 
-import spotify.sync as spotify
-
-SPOTIFY_CLIENT = spotify.Client(os.environ['SPOTIFY_CLIENT_ID'], os.environ['SPOTIFY_CLIENT_SECRET'])
-app.config.from_mapping({'spotify_client': SPOTIFY_CLIENT})
-REDIRECT_URI: str = 'https://datapak.coolcodersj.repl.co/spotify/callback'
-OAUTH2_SCOPES: tuple = (
-	'user-read-recently-played',
-    'user-top-read',
-    'user-read-playback-position',
-	'user-read-playback-state',
-    'user-read-currently-playing',
-	'playlist-read-private',
-    'playlist-read-collaborative',
-	'user-follow-read',
-	'user-library-read',
-	'user-read-email',
-    'user-read-private',
-)
-OAUTH2: spotify.OAuth2 = spotify.OAuth2(SPOTIFY_CLIENT.id, REDIRECT_URI, scopes=OAUTH2_SCOPES)
-SPOTIFY_USERS: dict = {}
-
-from flask_github import GitHub
 
 app.config['GITHUB_CLIENT_ID'] = os.environ['GITHUB_CLIENT_ID']
 app.config['GITHUB_CLIENT_SECRET'] = os.environ['GITHUB_CLIENT_SECRET']
-
-github = GitHub(app)
 
 # Disable SSL requirement
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
@@ -78,7 +54,31 @@ def home():
 			"Authorization": f"token {session['gh_token']}"
 		})
 		gh = r.json()['login']
-	return render_template("index.html", replitusername=request.headers['X-Replit-User-Name'], discordusername=disc, gh=gh)
+	
+	if not "spotify_token" in session.keys():
+		spotify = ""
+	else:
+		r = requests.get("https://api.spotify.com/v1/me", headers={
+			"Authorization": f"Bearer {session['spotify_token']}"
+		})
+		if "error" in r.json() and r.json()['error']['message'] == "The access token expired":
+				spotify_client_id, spotify_client_secret = os.environ['SPOTIFY_CLIENT_ID'], os.environ['SPOTIFY_CLIENT_SECRET']
+				r = requests.post("https://accounts.spotify.com/api/token", data={
+					"grant_type": "refresh_token",
+					"refresh_token": session['spotify_refresh_token'],
+					"redirect_uri": "https://datapak.coolcodersj.repl.co/spotify/callback",
+					'client_id': spotify_client_id,
+					"client_secret": spotify_client_secret
+				})
+				session['spotify_token'] = r.json()['access_token']
+				if "refresh_token" in r.json():
+					session['spotify_refresh_token'] = r.json()['refresh_token']
+		r = requests.get("https://api.spotify.com/v1/me", headers={
+			"Authorization": f"Bearer {session['spotify_token']}"
+		})
+		spotify = r.json()['display_name']
+
+	return render_template("index.html", replitusername=request.headers['X-Replit-User-Name'], discordusername=disc, gh=gh, spotify=spotify)
 
 @app.route('/discord')
 def discord():
@@ -162,33 +162,216 @@ def replit():
 	shutil.rmtree(f'DataPak{username}/')
 	return send_file(f'DataPak{username}.zip', mimetype="application/zip", as_attachment=True)
 	
+@app.route('/spotify/info')
+def spotinfo():
+	return render_template('spotifyinfo.html')
+
 @app.route('/spotify')
 def spot():
-	try:
-		return repr(SPOTIFY_USERS[session['spotify_user_id']])
-	except KeyError:
-		return redirect(OAUTH2.url)
+	client_id, client_secret = os.environ['SPOTIFY_CLIENT_ID'], os.environ['SPOTIFY_CLIENT_SECRET']
+	scopes = [
+	'user-read-recently-played',
+    'user-top-read',
+    'user-read-playback-position',
+	'user-read-playback-state',
+    'user-read-currently-playing',
+	'playlist-read-private',
+    'playlist-read-collaborative',
+	'user-follow-read',
+	'user-follow-modify',
+	'user-library-read',
+	'user-read-email',
+    'user-read-private',
+	]
+	scopes = " ".join(scopes)
+	if not "spotify_token" in session.keys():
+		return redirect(f"https://accounts.spotify.com/authorize?response_type=code&client_id={client_id}&scope={scopes}&redirect_uri=https://datapak.coolcodersj.repl.co/spotify/callback")
+	else:
+		artists = requests.get("https://api.spotify.com/v1/me/following?type=artist", headers={
+			"Authorization": f"Bearer {session['spotify_token']}"
+		})
+		
+		if artists.text == "":
+			artists = {"None": "None"}
+		else:
+			if "message" in artists.json() and artists.json()['message'] == "The access token expired":
+				client_id, client_secret = os.environ['SPOTIFY_CLIENT_ID'], os.environ['SPOTIFY_CLIENT_SECRET']
+				r = requests.post("https://accounts.spotify.com/api/token", data={
+					"grant_type": "refresh_token",
+					"refresh_token": session['spotify_refresh_token'],
+					"redirect_uri": "https://datapak.coolcodersj.repl.co/spotify/callback",
+					'client_id': client_id,
+					"client_secret": client_secret
+				})
+				session['spotify_token'] = r.json()['access_token']
+				if "refresh_token" in r.json():
+					session['spotify_refresh_token'] = r.json()['refresh_token']
+				artists = requests.get("https://api.spotify.com/v1/me/following?type=artist", headers={
+			"Authorization": f"Bearer {session['spotify_token']}"
+				})
+			artists = artists.json()['artists']['items']
+
+		albums = []
+		album_req = requests.get("https://api.spotify.com/v1/me/albums", headers={
+			"Authorization": f"Bearer {session['spotify_token']}"
+		})
+		for item in album_req.json()['items']:
+			albums.append(item)
+		while "next" in album_req.json() and album_req.json()['next'] != None:
+			album_req = requests.get(album_req.json()['next'], headers={
+			"Authorization": f"Bearer {session['spotify_token']}"
+			})
+			for item in album_req.json()['items']:
+				albums.append(item)
+
+		playlists = []
+		playlist_req = requests.get("https://api.spotify.com/v1/me/playlists", headers={
+			"Authorization": f"Bearer {session['spotify_token']}"
+		})
+		for item in playlist_req.json()['items']:
+			playlists.append(item)
+		while "next" in playlist_req.json() and playlist_req.json()['next'] != None:
+			playlist_req = requests.get(playlist_req.json()['next'], headers={
+			"Authorization": f"Bearer {session['spotify_token']}"
+			})
+			for item in playlist_req.json()['items']:
+				playlists.append(item)
+
+		liked_songs = []
+		track_req = requests.get("https://api.spotify.com/v1/me/tracks", headers={
+			"Authorization": f"Bearer {session['spotify_token']}"
+		})
+		for item in track_req.json()['items']:
+			liked_songs.append(item)
+		while "next" in track_req.json() and track_req.json()['next'] != None:
+			track_req = requests.get(track_req.json()['next'], headers={
+			"Authorization": f"Bearer {session['spotify_token']}"
+			})
+			for item in track_req.json()['items']:
+				liked_songs.append(item)
+
+		liked_episodes = []
+		episode_req = requests.get("https://api.spotify.com/v1/me/episodes", headers={
+			"Authorization": f"Bearer {session['spotify_token']}"
+		})
+		for item in episode_req.json()['items']:
+			liked_episodes.append(item)
+		while "next" in episode_req.json() and episode_req.json()['next'] != None:
+			episode_req = requests.get(episode_req.json()['next'], headers={
+			"Authorization": f"Bearer {session['spotify_token']}"
+			})
+			for item in episode_req.json()['items']:
+				liked_episodes.append(item)
+
+		shows = []
+		show_req = requests.get("https://api.spotify.com/v1/me/shows", headers={
+			"Authorization": f"Bearer {session['spotify_token']}"
+		})
+		for item in show_req.json()['items']:
+			shows.append(item)
+		while "next" in show_req.json() and show_req.json()['next'] != None:
+			show_req = requests.get(show_req.json()['next'], headers={
+			"Authorization": f"Bearer {session['spotify_token']}"
+			})
+			for item in show_req.json()['items']:
+				shows.append(item)
+
+		top_tracks = []
+		track_req = requests.get("https://api.spotify.com/v1/me/top/tracks", headers={
+			"Authorization": f"Bearer {session['spotify_token']}"
+		})
+		for item in track_req.json()['items']:
+			top_tracks.append(item)
+		while "next" in track_req.json() and track_req.json()['next'] != None:
+			track_req = requests.get(track_req.json()['next'], headers={
+			"Authorization": f"Bearer {session['spotify_token']}"
+			})
+			for item in track_req.json()['items']:
+				top_tracks.append(item)
+
+		top_artists = []
+		artist_req = requests.get("https://api.spotify.com/v1/me/top/tracks", headers={
+			"Authorization": f"Bearer {session['spotify_token']}"
+		})
+		for item in artist_req.json()['items']:
+			top_artists.append(item)
+		while "next" in artist_req.json() and artist_req.json()['next'] != None:
+			artist_req = requests.get(artist_req.json()['next'], headers={
+			"Authorization": f"Bearer {session['spotify_token']}"
+			})
+			for item in artist_req.json()['items']:
+				top_artists.append(item)
+
+		current_playback = requests.get("https://api.spotify.com/v1/me/player", headers={
+			"Authorization": f"Bearer {session['spotify_token']}"
+		})
+		if current_playback.text == '':
+			current_playback = {"error": "Nothing was playing while backing up."}
+		else:
+			current_playback = current_playback.json()
+		
+		devices = requests.get("https://api.spotify.com/v1/me/player/devices", headers={
+			"Authorization": f"Bearer {session['spotify_token']}"
+			})
+		
+		if devices.text == '':
+			devices = {"error": "No devices available."}
+		else:
+			devices = devices.json()
+
+		recently_played = []
+		req = requests.get("https://api.spotify.com/v1/me/player/recently-played", headers={
+			"Authorization": f"Bearer {session['spotify_token']}"
+		})
+		for item in req.json()['items']:
+			recently_played.append(item)
+		while "next" in req.json() and req.json()['next'] != None:
+			req = requests.get(req.json()['next'], headers={
+			"Authorization": f"Bearer {session['spotify_token']}"
+			})
+			for item in req.json()['items']:
+				recently_played.append(item)
+
+		profile = requests.get("https://api.spotify.com/v1/me", headers={
+			"Authorization": f"Bearer {session['spotify_token']}"
+		})
+
+		username = profile.json()['display_name']
+		os.mkdir(f"DataPak{username}/")
+
+		f = open(f"DataPak{username}/library.json", "w")
+		print({"artists": artists, "albums": albums, "playlists": playlists, "liked_songs": liked_songs, "liked_episodes": liked_episodes, "shows": shows, "top_tracks": top_tracks, "top_artists": top_artists}, file=f)
+		f.close()
+
+		f = open(f"DataPak{username}/playback.json", "w")
+		print({"current_playback": current_playback, "devices": devices, "recently_played": recently_played}, file=f)
+		f.close()
+
+		f = open(f"DataPak{username}/profile.json", "w")
+		print(profile.json(), file=f)
+		f.close()
+
+		shutil.make_archive(f'DataPak{username}', 'zip', f'DataPak{username}/')
+		shutil.rmtree(f'DataPak{username}/')
+		return send_file(f'DataPak{username}.zip', mimetype="application/zip", as_attachment=True)
+
 
 @app.route('/spotify/callback')
 def spotcallback():
-	try:
-		code = request.args['code']
-	except KeyError:
-		return redirect('/spotify/failed')
-	key = ''.join(random.choice(string.ascii_uppercase) for _ in range(16))
-	SPOTIFY_USERS[key] = spotify.User.from_code(
-		SPOTIFY_CLIENT,
-		code,
-		redirect_uri=REDIRECT_URI
-	)
-	session['spotify_user_id'] = key
-	return redirect('/spotify')
+	code = request.args.get("code")
+	client_id, client_secret = os.environ['SPOTIFY_CLIENT_ID'], os.environ['SPOTIFY_CLIENT_SECRET']
+	r = requests.post("https://accounts.spotify.com/api/token", data={
+		"grant_type": "authorization_code",
+		"type": "authorization_code",
+		"code": code,
+		"redirect_uri": "https://datapak.coolcodersj.repl.co/spotify/callback",
+		'client_id': client_id,
+		"client_secret": client_secret
+	})
+	session['spotify_token'] = r.json()['access_token']
+	session['spotify_refresh_token'] = r.json()['refresh_token']
+	return redirect('/')
 	
-@app.route('/spotify/failed')
-def spotify_failed():
-    session.pop('spotify_user_id', None)
-    return 'Failed to authenticate with Spotify.'
-
 @app.route('/github/info')
 def ghinfo():
 	return render_template("ghinfo.html")
@@ -228,7 +411,7 @@ def github():
 			"Authorization": f"token {session['gh_token']}"
 		})
 		organizations = r.json()
-		r = requests.get(f"https://api.github.com/users/{account['login']}/repos", headers={
+		r = requests.get(f"https://api.github.com/users/{account['login']}/repo", headers={
 			"Authorization": f"token {session['gh_token']}"
 		})
 		repos = r.json()

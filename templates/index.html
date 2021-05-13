@@ -128,6 +128,22 @@
 			<button style="background: rgb(17, 29, 44) !important;"><img src="https://sjcdn.is-a.dev/file/caikky" height="40px;" style="float:left; margin-right: 5px; scale: 85%;"><div style="padding-top: 12px;">{{  gh }}</div></button>
 			</a>
 			{% endif %}
+		</div><br>
+			<div class="div">
+			{% if spotify == "" %}
+			<a href="/spotify" target="_blank">
+			<button style="background: #000 !important;"><img src="https://sjcdn.is-a.dev/file/xyaqeu" height="40px;" style="float:left; margin-right: 5px; scale: 135%;"><div style="padding-top: 12px;">Login with Spotify</div></button>
+			</a>
+			{% else %}
+			<a href="/spotify/info" target="_blank">
+			<button style="background: #000 !important;"><img src="https://sjcdn.is-a.dev/file/xyaqeu" height="40px;" style="float:left; margin-right: 5px; scale: 135%;"><div style="padding-top: 12px;">{{  spotify }}</div></button>
+			</a>
+			{% endif %}
+		</div><br>
+		<div class="div">
+		<a href="https://takeout.google.com" target="_blank">
+			<button style="background: #fff !important;"><img src="https://lh3.googleusercontent.com/COxitqgJr1sJnIDe8-jiKhxDx1FrYbtRHKJ9z_hELisAlapwE9LUPh6fcXIfb5vwpbMl4xl9H9TRFPc5NOO8Sb3VSgIBrfRYvW6cUA" height="40px;" style="float:left; margin-right: 5px; scale: 70%;"><div style="padding-top: 12px; color: black;">Google Takeout</div></button>
+			</a>
 		</div>
 		</center>
 	</body>
